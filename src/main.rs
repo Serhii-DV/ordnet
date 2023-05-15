@@ -1,3 +1,4 @@
+use ordnet::Config;
 use std::{env, process};
 
 fn main() {
@@ -9,25 +10,8 @@ fn main() {
 
     println!("Searching for \"{}\"", config.query);
 
-    run(config);
-}
-
-struct Config {
-    query: String,
-}
-
-impl Config {
-    fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 2 {
-            return Err("not enough arguments");
-        }
-
-        let query = args[1].clone();
-
-        Ok(Config { query })
+    if let Err(e) = ordnet::run(config) {
+        println!("Application error: {e}");
+        process::exit(1);
     }
-}
-
-fn run(config: Config) {
-    println!("Running with:\n{}", config.query);
 }
