@@ -30,22 +30,19 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         .text()
         .unwrap();
 
-    let article_content = get_article_content(&response);
+    let word = get_word(&response);
 
-    println!("{}", article_content);
+    println!("{}", word.value);
 
     Ok(())
 }
 
-pub fn get_article_content(contents: &str) -> String {
-    let fragment = Html::parse_fragment(contents);
+pub fn get_word(html: &str) -> Word {
+    let fragment = Html::parse_fragment(html);
     let article_selector = Selector::parse("div.artikel").unwrap();
 
-    let article_div = fragment.select(&article_selector).next().unwrap();
-    article_div.inner_html()
-}
+    let _article_div = fragment.select(&article_selector).next().unwrap();
 
-pub fn get_word(_article: &str) -> Word {
     Word {
         value: String::from("hygge"),
         is_substantiv: true,
@@ -57,23 +54,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn can_get_article_content() {
-        let contents = "\
+    fn can_get_word() {
+        let html = "\
 <div>
     <div class=\"artikel\">Article content</div>
 </div>";
-
-        assert_eq!("Article content", get_article_content(contents));
-    }
-
-    #[test]
-    fn can_get_ord() {
-        let article = "";
         let word = Word {
             value: String::from("hygge"),
             is_substantiv: true,
         };
 
-        assert_eq!(word.value, get_word(article).value);
+        assert_eq!(word.value, get_word(html).value);
     }
 }
