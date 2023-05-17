@@ -17,6 +17,11 @@ impl Config {
     }
 }
 
+pub struct Word {
+    pub value: String,
+    pub is_substantiv: bool,
+}
+
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!("Running with:\n{}", config.query);
 
@@ -40,6 +45,13 @@ pub fn get_article_content(contents: &str) -> String {
     article_div.inner_html()
 }
 
+pub fn get_word(_article: &str) -> Word {
+    Word {
+        value: String::from("hygge"),
+        is_substantiv: true,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -52,5 +64,16 @@ mod tests {
 </div>";
 
         assert_eq!("Article content", get_article_content(contents));
+    }
+
+    #[test]
+    fn can_get_ord() {
+        let article = "";
+        let word = Word {
+            value: String::from("hygge"),
+            is_substantiv: true,
+        };
+
+        assert_eq!(word.value, get_word(article).value);
     }
 }
