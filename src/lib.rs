@@ -22,14 +22,11 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn get_article_content(article_class: &str, contents: &str) -> Vec<String> {
+pub fn get_article_content(contents: &str) -> Vec<String> {
     let mut results = Vec::new();
 
-    let mut article_selector = "div.".to_owned();
-    article_selector.push_str(article_class);
-
     let fragment = Html::parse_fragment(contents);
-    let article_selector = Selector::parse(&article_selector).unwrap();
+    let article_selector = Selector::parse("div.artikel").unwrap();
 
     let article_div = fragment.select(&article_selector).next().unwrap();
     let article_inner = article_div.inner_html();
@@ -44,15 +41,11 @@ mod tests {
 
     #[test]
     fn can_get_article_content() {
-        let article_class = "artikel";
         let contents = "\
 <div>
     <div class=\"artikel\">Article content</div>
 </div>";
 
-        assert_eq!(
-            vec!["Article content"],
-            get_article_content(article_class, contents)
-        );
+        assert_eq!(vec!["Article content"], get_article_content(contents));
     }
 }
