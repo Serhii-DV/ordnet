@@ -19,20 +19,25 @@ impl Config {
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!("Running with:\n{}", config.query);
+
+    let response = reqwest::blocking::get("https://ordnet.dk/ddo/ordbog?query=hygge")
+        .unwrap()
+        .text()
+        .unwrap();
+
+    let article_content = get_article_content(&response);
+
+    println!("{}", article_content);
+
     Ok(())
 }
 
-pub fn get_article_content(contents: &str) -> Vec<String> {
-    let mut results = Vec::new();
-
+pub fn get_article_content(contents: &str) -> String {
     let fragment = Html::parse_fragment(contents);
     let article_selector = Selector::parse("div.artikel").unwrap();
 
     let article_div = fragment.select(&article_selector).next().unwrap();
-    let article_inner = article_div.inner_html();
-
-    results.push(article_inner);
-    results
+    article_div.inner_html()
 }
 
 #[cfg(test)]
@@ -46,6 +51,6 @@ mod tests {
     <div class=\"artikel\">Article content</div>
 </div>";
 
-        assert_eq!(vec!["Article content"], get_article_content(contents));
+        assert_eq!("Article content", get_article_content(contents));
     }
 }
