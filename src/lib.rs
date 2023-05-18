@@ -25,16 +25,19 @@ pub struct Word {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!("Running with:\n{}", config.query);
 
-    let response = reqwest::blocking::get("https://ordnet.dk/ddo/ordbog?query=hygge")
-        .unwrap()
-        .text()
-        .unwrap();
-
-    let word = get_word_from_html(&response);
+    let html = get_html();
+    let word = get_word_from_html(&html);
 
     println!("{}", word.value);
 
     Ok(())
+}
+
+pub fn get_html() -> String {
+    reqwest::blocking::get("https://ordnet.dk/ddo/ordbog?query=hygge")
+        .unwrap()
+        .text()
+        .unwrap()
 }
 
 pub fn get_word_from_html(html: &str) -> Word {
