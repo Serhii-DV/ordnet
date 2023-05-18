@@ -43,15 +43,22 @@ pub fn get_html() -> Html {
 }
 
 pub fn get_word_from_html(html: &Html) -> Word {
-    let article_selector = Selector::parse("div.artikel").unwrap();
+    // let match_selector = selector("div.artikel div.definitionBoxTop span.match");
+    // let match_span = html.select(&match_selector).next().expect("No match element found");
+    // println!("{:?}", match_span.next_sibling());
 
+    let article_selector = selector("div.artikel");
     let article_div = html.select(&article_selector).next().unwrap();
-    println!("{}", article_div.inner_html());
+    println!("{}", article_div.html());
 
     Word {
         value: String::from("hygge"),
         is_substantiv: true,
     }
+}
+
+fn selector(selector: &'_ str) -> Selector {
+    Selector::parse(selector).unwrap()
 }
 
 #[cfg(test)]
@@ -62,7 +69,11 @@ mod tests {
     fn can_get_word() {
         let html = "\
 <div>
-    <div class=\"artikel\">Article content</div>
+    <div class=\"artikel\">
+    <div class=\"definitionBoxTop\">
+        <span class=\"match\">hygge<span class=\"super\">1</span></span>
+        <span class=\"tekstmedium allow-glossing\">substantiv, fælleskøn</span></div>
+    </div>
 </div>";
         let html = Html::parse_document(html);
         let word = Word {
