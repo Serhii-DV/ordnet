@@ -33,18 +33,20 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn get_html() -> String {
-    reqwest::blocking::get("https://ordnet.dk/ddo/ordbog?query=hygge")
+pub fn get_html() -> Html {
+    let response = reqwest::blocking::get("https://ordnet.dk/ddo/ordbog?query=hygge")
         .unwrap()
         .text()
-        .unwrap()
+        .unwrap();
+
+    Html::parse_document(&response)
 }
 
-pub fn get_word_from_html(html: &str) -> Word {
-    let fragment = Html::parse_fragment(html);
+pub fn get_word_from_html(html: &Html) -> Word {
     let article_selector = Selector::parse("div.artikel").unwrap();
 
-    let _article_div = fragment.select(&article_selector).next().unwrap();
+    let article_div = html.select(&article_selector).next().unwrap();
+    println!("{}", article_div.inner_html());
 
     Word {
         value: String::from("hygge"),
@@ -62,11 +64,12 @@ mod tests {
 <div>
     <div class=\"artikel\">Article content</div>
 </div>";
+        let html = Html::parse_document(html);
         let word = Word {
             value: String::from("hygge"),
             is_substantiv: true,
         };
 
-        assert_eq!(word.value, get_word_from_html(html).value);
+        assert_eq!(word.value, get_word_from_html(&html).value);
     }
 }
