@@ -30,14 +30,14 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         .text()
         .unwrap();
 
-    let word = get_word(&response);
+    let word = get_word_from_html(&response);
 
     println!("{}", word.value);
 
     Ok(())
 }
 
-pub fn get_word(html: &str) -> Word {
+pub fn get_word_from_html(html: &str) -> Word {
     let fragment = Html::parse_fragment(html);
     let article_selector = Selector::parse("div.artikel").unwrap();
 
@@ -64,6 +64,6 @@ mod tests {
             is_substantiv: true,
         };
 
-        assert_eq!(word.value, get_word(html).value);
+        assert_eq!(word.value, get_word_from_html(html).value);
     }
 }
