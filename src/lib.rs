@@ -1,4 +1,4 @@
-use scraper::{Html, Selector};
+use scraper::{ElementRef, Html, Selector};
 use std::error::Error;
 
 pub struct Config {
@@ -34,31 +34,42 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn get_ordnet_page() -> Html {
-    let response = reqwest::blocking::get("https://ordnet.dk/ddo/ordbog?query=hygge")
-        .unwrap()
-        .text()
-        .unwrap();
+    let url = "https://ordnet.dk/ddo/ordbog?query=hygge";
+    let response = reqwest::blocking::get(url).expect("Could not load url.");
+    assert!(response.status().is_success());
 
-    Html::parse_document(&response)
+    let document = response.text().unwrap();
+
+    Html::parse_document(&document)
 }
 
 pub fn get_ordnet_word(html: &Html) -> Word {
-    // let match_selector = selector("div.artikel div.definitionBoxTop span.match");
-    // let match_span = html.select(&match_selector).next().expect("No match element found");
-    // println!("{:?}", match_span.next_sibling());
+    let mut match_value = selector_as_text(html, "div.artikel span.match");
+    // TODO: remove the "1" from the end in a better way
+    match_value.pop();
 
-    let article_selector = selector("div.artikel");
-    let article_div = html.select(&article_selector).next().unwrap();
-    println!("{}", article_div.html());
+    // let article_selector = selector("div.artikel");
+    // let article_div = html.select(&article_selector).next().unwrap();
+    // println!("{}", article_div.html());
 
     Word {
-        value: String::from("hygge"),
+        value: match_value,
         is_substantiv: true,
     }
 }
 
-fn selector(selector: &'_ str) -> Selector {
+fn create_selector(selector: &'_ str) -> Selector {
     Selector::parse(selector).unwrap()
+}
+
+fn el_as_text(element: &ElementRef) -> String {
+    element.text().collect::<String>()
+}
+
+fn selector_as_text(html: &Html, selector: &'_ str) -> String {
+    let el_selector = create_selector(selector);
+    let element = html.select(&el_selector).next().unwrap();
+    el_as_text(&element)
 }
 
 #[cfg(test)]
