@@ -25,15 +25,15 @@ pub struct Word {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     println!("Running with:\n{}", config.query);
 
-    let html = get_html();
-    let word = get_word_from_html(&html);
+    let html = get_ordnet_page();
+    let word = get_ordnet_word(&html);
 
     println!("{}", word.value);
 
     Ok(())
 }
 
-pub fn get_html() -> Html {
+pub fn get_ordnet_page() -> Html {
     let response = reqwest::blocking::get("https://ordnet.dk/ddo/ordbog?query=hygge")
         .unwrap()
         .text()
@@ -42,7 +42,7 @@ pub fn get_html() -> Html {
     Html::parse_document(&response)
 }
 
-pub fn get_word_from_html(html: &Html) -> Word {
+pub fn get_ordnet_word(html: &Html) -> Word {
     // let match_selector = selector("div.artikel div.definitionBoxTop span.match");
     // let match_span = html.select(&match_selector).next().expect("No match element found");
     // println!("{:?}", match_span.next_sibling());
@@ -81,6 +81,6 @@ mod tests {
             is_substantiv: true,
         };
 
-        assert_eq!(word.value, get_word_from_html(&html).value);
+        assert_eq!(word.value, get_ordnet_word(&html).value);
     }
 }
