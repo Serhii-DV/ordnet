@@ -44,18 +44,19 @@ pub fn get_ordnet_page() -> Html {
 }
 
 pub fn get_ordnet_word(html: &Html) -> Word {
-    let mut match_value = selector_as_text(html, "div.artikel span.match");
-    // TODO: remove the "1" from the end in a better way
-    match_value.pop();
-
     // let article_selector = selector("div.artikel");
     // let article_div = html.select(&article_selector).next().unwrap();
     // println!("{}", article_div.html());
 
     Word {
-        value: match_value,
+        value: get_match_value(html),
         is_substantiv: true,
     }
+}
+
+fn get_match_value(html: &Html) -> String {
+    let match_value = selector_as_text(html, "div.artikel span.match");
+    match_value.chars().filter(|c| c.is_alphabetic()).collect()
 }
 
 fn create_selector(selector: &'_ str) -> Selector {
