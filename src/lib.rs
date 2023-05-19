@@ -19,6 +19,7 @@ impl Config {
 
 pub struct Word {
     pub value: String,
+    pub group: String,
     pub is_substantiv: bool,
 }
 
@@ -50,13 +51,18 @@ pub fn get_ordnet_word(html: &Html) -> Word {
 
     Word {
         value: get_match_value(html),
+        group: get_group_type(html),
         is_substantiv: true,
     }
 }
 
 fn get_match_value(html: &Html) -> String {
-    let match_value = selector_as_text(html, "div.artikel span.match");
-    match_value.chars().filter(|c| c.is_alphabetic()).collect()
+    let text = selector_as_text(html, "div.artikel span.match");
+    text.chars().filter(|c| c.is_alphabetic()).collect()
+}
+
+fn get_group_type(html: &Html) -> String {
+    selector_as_text(html, "div.definitionBoxTop span.tekstmedium")
 }
 
 fn create_selector(selector: &'_ str) -> Selector {
@@ -90,6 +96,7 @@ mod tests {
         let html = Html::parse_document(html);
         let word = Word {
             value: String::from("hygge"),
+            group: String::from("substantiv, fælleskøn"),
             is_substantiv: true,
         };
 
