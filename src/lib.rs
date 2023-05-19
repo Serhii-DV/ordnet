@@ -1,4 +1,5 @@
 use scraper::{ElementRef, Html, Selector};
+use serde::{Deserialize, Serialize};
 use std::error::Error;
 
 pub struct Config {
@@ -17,10 +18,17 @@ impl Config {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Word {
     pub value: String,
     pub group: String,
     pub is_substantiv: bool,
+}
+
+impl Word {
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self).unwrap()
+    }
 }
 
 pub fn run(_config: Config) -> Result<(), Box<dyn Error>> {
@@ -29,7 +37,7 @@ pub fn run(_config: Config) -> Result<(), Box<dyn Error>> {
     let html = get_ordnet_page();
     let word = get_ordnet_word(&html);
 
-    output_word(&word);
+    println!("{}", word.to_json());
 
     Ok(())
 }
@@ -54,15 +62,6 @@ pub fn get_ordnet_word(html: &Html) -> Word {
         group: get_group_type(html),
         is_substantiv: true,
     }
-}
-
-pub fn output_word(word: &Word) {
-    println!(
-        "Word
-    value: {}
-    group: {}",
-        word.value, word.group
-    );
 }
 
 fn get_match_value(html: &Html) -> String {
