@@ -8,7 +8,7 @@ fn main() {
         process::exit(1);
     });
 
-    println!("Searching for \"{}\"", config.query);
+    // println!("Searching for \"{}\"", config.query);
 
     if let Err(e) = ordnet::run(config) {
         println!("Application error: {e}");

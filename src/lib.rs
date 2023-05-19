@@ -23,13 +23,13 @@ pub struct Word {
     pub is_substantiv: bool,
 }
 
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    println!("Running with:\n{}", config.query);
+pub fn run(_config: Config) -> Result<(), Box<dyn Error>> {
+    // println!("Running with:\n{}", config.query);
 
     let html = get_ordnet_page();
     let word = get_ordnet_word(&html);
 
-    println!("{}", word.value);
+    output_word(&word);
 
     Ok(())
 }
@@ -54,6 +54,15 @@ pub fn get_ordnet_word(html: &Html) -> Word {
         group: get_group_type(html),
         is_substantiv: true,
     }
+}
+
+pub fn output_word(word: &Word) {
+    println!(
+        "Word
+    value: {}
+    group: {}",
+        word.value, word.group
+    );
 }
 
 fn get_match_value(html: &Html) -> String {
