@@ -107,7 +107,10 @@ mod tests {
             group: String::from("substantiv, fælleskøn"),
             is_substantiv: true,
         };
+        let parsed_word = get_ordnet_word(&html);
 
-        assert_eq!(word.value, get_ordnet_word(&html).value);
+        assert_eq!(word.value, parsed_word.value);
+        assert_eq!(word.group, parsed_word.group);
+        assert_eq!(word.is_substantiv, parsed_word.is_substantiv);
     }
 }
