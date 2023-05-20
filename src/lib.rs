@@ -23,6 +23,7 @@ pub struct Word {
     pub value: String,
     pub group: String,
     pub is_substantiv: bool,
+    pub url: String,
 }
 
 impl Word {
@@ -32,25 +33,25 @@ impl Word {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let html = get_ordnet_page(&config.query);
-    let word = get_ordnet_word(&html);
+    let (html, url) = get_ordnet_page(&config.query);
+    let word = get_ordnet_word(&html, &url);
 
     println!("{}", word.to_json());
 
     Ok(())
 }
 
-pub fn get_ordnet_page(query: &str) -> Html {
+pub fn get_ordnet_page(query: &str) -> (Html, String) {
     let url = "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query);
-    let response = reqwest::blocking::get(url).expect("Could not load url.");
+    let response = reqwest::blocking::get(&url).expect("Could not load url.");
     assert!(response.status().is_success());
 
     let document = response.text().unwrap();
 
-    Html::parse_document(&document)
+    (Html::parse_document(&document), url)
 }
 
-pub fn get_ordnet_word(html: &Html) -> Word {
+pub fn get_ordnet_word(html: &Html, url: &str) -> Word {
     // let article_selector = selector("div.artikel");
     // let article_div = html.select(&article_selector).next().unwrap();
     // println!("{}", article_div.html());
@@ -59,6 +60,7 @@ pub fn get_ordnet_word(html: &Html) -> Word {
         value: get_match_value(html),
         group: get_group_type(html),
         is_substantiv: true,
+        url: String::from(url),
     }
 }
 
@@ -100,15 +102,18 @@ mod tests {
     </div>
 </div>";
         let html = Html::parse_document(html);
+        let url = String::from("https://ordnet.dk");
+        let parsed_word = get_ordnet_word(&html, &url);
         let word = Word {
             value: String::from("hygge"),
             group: String::from("substantiv, fælleskøn"),
             is_substantiv: true,
+            url,
         };
-        let parsed_word = get_ordnet_word(&html);
 
         assert_eq!(word.value, parsed_word.value);
         assert_eq!(word.group, parsed_word.group);
         assert_eq!(word.is_substantiv, parsed_word.is_substantiv);
+        assert_eq!(word.url, parsed_word.url);
     }
 }
