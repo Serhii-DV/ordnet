@@ -2,8 +2,14 @@ use scraper::{ElementRef, Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
+pub enum Format {
+    Json,
+    JsonPretty,
+}
+
 pub struct Config {
     pub query: String,
+    pub format: Format,
 }
 
 impl Config {
@@ -13,8 +19,17 @@ impl Config {
         }
 
         let query = args[1].clone();
+        let format = if args.get(2).is_some() {
+            match args[2].clone().as_str() {
+                "json" => Format::Json,
+                "json-pretty" => Format::JsonPretty,
+                _ => Format::Json,
+            }
+        } else {
+            Format::Json
+        };
 
-        Ok(Config { query })
+        Ok(Config { query, format })
     }
 }
 
@@ -30,13 +45,23 @@ impl Word {
     pub fn to_json(&self) -> String {
         serde_json::to_string(&self).unwrap()
     }
+
+    pub fn to_json_pretty(&self) -> String {
+        serde_json::to_string_pretty(&self).unwrap()
+    }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let (html, url) = get_ordnet_page(&config.query);
     let word = get_ordnet_word(&html, &url);
 
-    println!("{}", word.to_json());
+    println!(
+        "{}",
+        match config.format {
+            Format::Json => word.to_json(),
+            Format::JsonPretty => word.to_json_pretty(),
+        }
+    );
 
     Ok(())
 }
