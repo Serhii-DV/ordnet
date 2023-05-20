@@ -31,10 +31,8 @@ impl Word {
     }
 }
 
-pub fn run(_config: Config) -> Result<(), Box<dyn Error>> {
-    // println!("Running with:\n{}", config.query);
-
-    let html = get_ordnet_page();
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let html = get_ordnet_page(&config.query);
     let word = get_ordnet_word(&html);
 
     println!("{}", word.to_json());
@@ -42,8 +40,8 @@ pub fn run(_config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn get_ordnet_page() -> Html {
-    let url = "https://ordnet.dk/ddo/ordbog?query=hygge";
+pub fn get_ordnet_page(query: &str) -> Html {
+    let url = "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query);
     let response = reqwest::blocking::get(url).expect("Could not load url.");
     assert!(response.status().is_success());
 
