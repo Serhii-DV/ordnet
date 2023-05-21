@@ -139,6 +139,9 @@ mod tests {
         assert_eq!(word.value, parsed_word.value);
         assert_eq!(word.group, parsed_word.group);
         assert_eq!(word.is_substantiv, parsed_word.is_substantiv);
+        assert_eq!(word.bending, parsed_word.bending);
+        assert_eq!(word.pronunciation, parsed_word.pronunciation);
+        assert_eq!(word.origin, parsed_word.origin);
         assert_eq!(word.url, parsed_word.url);
     }
 }
