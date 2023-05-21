@@ -116,46 +116,14 @@ fn selector_as_text(html: &Html, selector: &'_ str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
 
     #[test]
     fn can_get_word() {
-        let html = "\
-<div>
-    <div class=\"artikel\">
-    <div class=\"definitionBoxTop\">
-        <span class=\"match\">hygge<span class=\"super\">1</span></span>
-        <span class=\"tekstmedium allow-glossing\">substantiv, fælleskøn</span></div>
-    </div>
-    <div class=\"definitionBox\" id=\"id-boj\">
-        <span class=\"stempel\">Bøjning</span>
-        <span class=\"tekstmedium allow-glossing\">-n</span>
-    </div>
-    <div class=\"definitionBox details\" id=\"id-udt\">
-        <span class=\"stempel\">Udtale</span>
-        <span class=\"tekstmedium allow-glossing\">
-            <span class=\"lydskrift\">
-                <span class=\"diskret\">[</span>ˈhygə<span class=\"diskret\">]</span>&nbsp;
-                <audio id=\"11022047_1\" src=\"https://static.ordnet.dk/mp3/11022/11022047_1.mp3\">
-                    <div class=\"hiddenStructure\">
-                        <a href=\"https://static.ordnet.dk/mp3/11022/11022047_1.mp3\" id=\"11022047_1_fallback\">&nbsp;</a>
-                    </div>
-                </audio>
-                <img src=\"speaker.gif\" style=\"cursor: pointer;\" onclick=\"playSound('11022047_1'); _gaq.push(['_trackPageview', '/static/lyd/11022047_1']);\">
-            </span>
-        </span>
-        <span class=\"tipIkon\">
-        <a href=\"../ddo/artiklernes-opbygning/udtale?set_language=da\" title=\"hjælp til læsning af lydskriften\">
-            <img src=\"tip_ikon_mini.gif\" alt=\"tip\" width=\"18\" height=\"18\">
-        </a>
-        </span>
-    </div>
-    <div class=\"definitionBox details\" id=\"id-ety\">
-        <span class=\"stempel\">Oprindelse</span>
-        <span class=\"tekstmedium allow-glossing\">dannet af <a href=\"?entry_id=11022048&amp;query=hygge\">hygge</a></span>
-    </div>
-</div>";
-        let html = Html::parse_document(html);
+        let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
+        let html = Html::parse_document(&test_html);
         let url = String::from("https://ordnet.dk");
         let parsed_word = get_ordnet_word(&html, &url);
         let word = Word {
