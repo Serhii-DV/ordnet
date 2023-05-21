@@ -40,6 +40,7 @@ pub struct Word {
     pub is_substantiv: bool,
     pub bending: String,
     pub pronunciation: String,
+    pub origin: String,
     pub url: String,
 }
 
@@ -89,6 +90,7 @@ pub fn get_ordnet_word(html: &Html, url: &str) -> Word {
         is_substantiv: true,
         bending: selector_as_text(html, "#id-boj span.tekstmedium"),
         pronunciation: selector_as_text(html, "#id-udt span.tekstmedium"),
+        origin: selector_as_text(html, "#id-ety span.tekstmedium"),
         url: String::from(url),
     }
 }
@@ -148,6 +150,10 @@ mod tests {
         </a>
         </span>
     </div>
+    <div class=\"definitionBox details\" id=\"id-ety\">
+        <span class=\"stempel\">Oprindelse</span>
+        <span class=\"tekstmedium allow-glossing\">dannet af <a href=\"?entry_id=11022048&amp;query=hygge\">hygge</a></span>
+    </div>
 </div>";
         let html = Html::parse_document(html);
         let url = String::from("https://ordnet.dk");
@@ -158,6 +164,7 @@ mod tests {
             is_substantiv: true,
             bending: String::from("-n"),
             pronunciation: String::from("[ˈhygə]"),
+            origin: String::from("dannet af hygge"),
             url,
         };
 
