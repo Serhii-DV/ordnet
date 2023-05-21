@@ -38,6 +38,8 @@ pub struct Word {
     pub value: String,
     pub group: String,
     pub is_substantiv: bool,
+    pub bending: String,
+    pub pronunciation: String,
     pub url: String,
 }
 
@@ -83,8 +85,10 @@ pub fn get_ordnet_word(html: &Html, url: &str) -> Word {
 
     Word {
         value: get_match_value(html),
-        group: get_group_type(html),
+        group: selector_as_text(html, "div.definitionBoxTop span.tekstmedium"),
         is_substantiv: true,
+        bending: selector_as_text(html, "#id-boj span.tekstmedium"),
+        pronunciation: selector_as_text(html, "#id-udt span.tekstmedium"),
         url: String::from(url),
     }
 }
@@ -94,16 +98,12 @@ fn get_match_value(html: &Html) -> String {
     text.chars().filter(|c| c.is_alphabetic()).collect()
 }
 
-fn get_group_type(html: &Html) -> String {
-    selector_as_text(html, "div.definitionBoxTop span.tekstmedium")
-}
-
 fn create_selector(selector: &'_ str) -> Selector {
     Selector::parse(selector).unwrap()
 }
 
 fn el_as_text(element: &ElementRef) -> String {
-    element.text().collect::<String>()
+    element.text().collect::<String>().trim().to_string()
 }
 
 fn selector_as_text(html: &Html, selector: &'_ str) -> String {
@@ -125,6 +125,29 @@ mod tests {
         <span class=\"match\">hygge<span class=\"super\">1</span></span>
         <span class=\"tekstmedium allow-glossing\">substantiv, fælleskøn</span></div>
     </div>
+    <div class=\"definitionBox\" id=\"id-boj\">
+        <span class=\"stempel\">Bøjning</span>
+        <span class=\"tekstmedium allow-glossing\">-n</span>
+    </div>
+    <div class=\"definitionBox details\" id=\"id-udt\">
+        <span class=\"stempel\">Udtale</span>
+        <span class=\"tekstmedium allow-glossing\">
+            <span class=\"lydskrift\">
+                <span class=\"diskret\">[</span>ˈhygə<span class=\"diskret\">]</span>&nbsp;
+                <audio id=\"11022047_1\" src=\"https://static.ordnet.dk/mp3/11022/11022047_1.mp3\">
+                    <div class=\"hiddenStructure\">
+                        <a href=\"https://static.ordnet.dk/mp3/11022/11022047_1.mp3\" id=\"11022047_1_fallback\">&nbsp;</a>
+                    </div>
+                </audio>
+                <img src=\"speaker.gif\" style=\"cursor: pointer;\" onclick=\"playSound('11022047_1'); _gaq.push(['_trackPageview', '/static/lyd/11022047_1']);\">
+            </span>
+        </span>
+        <span class=\"tipIkon\">
+        <a href=\"../ddo/artiklernes-opbygning/udtale?set_language=da\" title=\"hjælp til læsning af lydskriften\">
+            <img src=\"tip_ikon_mini.gif\" alt=\"tip\" width=\"18\" height=\"18\">
+        </a>
+        </span>
+    </div>
 </div>";
         let html = Html::parse_document(html);
         let url = String::from("https://ordnet.dk");
@@ -133,6 +156,8 @@ mod tests {
             value: String::from("hygge"),
             group: String::from("substantiv, fælleskøn"),
             is_substantiv: true,
+            bending: String::from("-n"),
+            pronunciation: String::from("[ˈhygə]"),
             url,
         };
 
