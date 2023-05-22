@@ -73,7 +73,7 @@ impl Word {
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let (html, url) = get_ordnet_page(&config.query);
-    let word = get_ordnet_word(&html, &url);
+    let word = build_word(&html, url);
 
     println!(
         "{}",
@@ -97,7 +97,7 @@ pub fn get_ordnet_page(query: &str) -> (Html, String) {
     (Html::parse_document(&document), url)
 }
 
-pub fn get_ordnet_word(html: &Html, url: &str) -> Word {
+pub fn build_word(html: &Html, url: String) -> Word {
     // let article_selector = selector("div.artikel");
     // let article_div = html.select(&article_selector).next().unwrap();
     // println!("{}", article_div.html());
@@ -109,7 +109,7 @@ pub fn get_ordnet_word(html: &Html, url: &str) -> Word {
         bending: element_to_string(html, "#id-boj span.tekstmedium"),
         pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
         origin: element_to_string(html, "#id-ety span.tekstmedium"),
-        url: String::from(url),
+        url,
     }
 }
 
@@ -138,8 +138,8 @@ mod tests {
     fn can_get_word() {
         let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
         let html = Html::parse_document(&test_html);
-        let url = String::from("https://ordnet.dk");
-        let parsed_word = get_ordnet_word(&html, &url);
+        let url = "https://ordnet.dk";
+        let parsed_word = build_word(&html, String::from(url));
         let word = Word {
             value: String::from("hygge"),
             group: String::from("substantiv, fælleskøn"),
@@ -147,7 +147,7 @@ mod tests {
             bending: String::from("-n"),
             pronunciation: String::from("[ˈhygə]"),
             origin: String::from("dannet af hygge"),
-            url,
+            url: String::from(url),
         };
 
         assert_eq!(word.value, parsed_word.value);
