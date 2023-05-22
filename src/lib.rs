@@ -35,11 +35,26 @@ impl Config {
     }
 }
 
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
+pub enum WordGroup {
+    None,
+    Substantiv(SubstantivGroup),
+    Verbum,
+    Adjektiv,
+    Adverbium,
+}
+
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
+pub enum SubstantivGroup {
+    Fælleskon, // n-word
+    Intetkøn,  // t-word
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Word {
-    pub value: String,
-    pub group: String,
-    pub is_substantiv: bool,
+    pub value_text: String,
+    pub group_text: String,
+    pub group: WordGroup,
     pub bending: String,
     pub pronunciation: String,
     pub origin: String,
@@ -101,11 +116,12 @@ pub fn build_word(html: &Html, url: String) -> Word {
     // let article_selector = selector("div.artikel");
     // let article_div = html.select(&article_selector).next().unwrap();
     // println!("{}", article_div.html());
+    let group_text = element_to_string(html, "div.definitionBoxTop span.tekstmedium");
 
     Word {
-        value: get_match_value(html),
-        group: element_to_string(html, "div.definitionBoxTop span.tekstmedium"),
-        is_substantiv: true,
+        value_text: get_match_value(html),
+        group: detect_group(&group_text),
+        group_text,
         bending: element_to_string(html, "#id-boj span.tekstmedium"),
         pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
         origin: element_to_string(html, "#id-ety span.tekstmedium"),
@@ -116,6 +132,27 @@ pub fn build_word(html: &Html, url: String) -> Word {
 fn get_match_value(html: &Html) -> String {
     let text = element_to_string(html, "div.artikel span.match");
     text.chars().filter(|c| c.is_alphabetic()).collect()
+}
+
+fn detect_group(group_text: &str) -> WordGroup {
+    let groups = group_text.split(',');
+
+    for part in groups {
+        let word_group = match part.trim() {
+            "fælleskøn" => WordGroup::Substantiv(SubstantivGroup::Fælleskon),
+            "intetkøn" => WordGroup::Substantiv(SubstantivGroup::Intetkøn),
+            "verbum" => WordGroup::Verbum,
+            "adjektiv" => WordGroup::Adjektiv,
+            "adverbium" => WordGroup::Adverbium,
+            _ => WordGroup::None,
+        };
+
+        if word_group != WordGroup::None {
+            return word_group;
+        }
+    }
+
+    WordGroup::None
 }
 
 fn create_selector(selector: &'_ str) -> Selector {
@@ -135,24 +172,40 @@ mod tests {
     use super::*;
 
     #[test]
+    fn can_detect_group() {
+        assert_eq!(
+            detect_group("substantiv, fælleskøn"),
+            WordGroup::Substantiv(SubstantivGroup::Fælleskon)
+        );
+        assert_eq!(
+            detect_group("substantiv, intetkøn"),
+            WordGroup::Substantiv(SubstantivGroup::Intetkøn)
+        );
+        assert_eq!(detect_group("verbum"), WordGroup::Verbum);
+        assert_eq!(detect_group("adjektiv"), WordGroup::Adjektiv);
+        assert_eq!(detect_group("adverbium"), WordGroup::Adverbium);
+        assert_eq!(detect_group("unknown"), WordGroup::None);
+    }
+
+    #[test]
     fn can_get_word() {
         let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
         let html = Html::parse_document(&test_html);
         let url = "https://ordnet.dk";
         let parsed_word = build_word(&html, String::from(url));
         let word = Word {
-            value: String::from("hygge"),
-            group: String::from("substantiv, fælleskøn"),
-            is_substantiv: true,
+            value_text: String::from("hygge"),
+            group_text: String::from("substantiv, fælleskøn"),
+            group: WordGroup::Substantiv(SubstantivGroup::Fælleskon),
             bending: String::from("-n"),
             pronunciation: String::from("[ˈhygə]"),
             origin: String::from("dannet af hygge"),
             url: String::from(url),
         };
 
-        assert_eq!(word.value, parsed_word.value);
+        assert_eq!(word.value_text, parsed_word.value_text);
+        assert_eq!(word.group_text, parsed_word.group_text);
         assert_eq!(word.group, parsed_word.group);
-        assert_eq!(word.is_substantiv, parsed_word.is_substantiv);
         assert_eq!(word.bending, parsed_word.bending);
         assert_eq!(word.pronunciation, parsed_word.pronunciation);
         assert_eq!(word.origin, parsed_word.origin);
