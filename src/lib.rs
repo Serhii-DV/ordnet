@@ -1,4 +1,4 @@
-use scraper::{ElementRef, Html, Selector};
+use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use tera::{Context, Tera};
@@ -104,17 +104,17 @@ pub fn get_ordnet_word(html: &Html, url: &str) -> Word {
 
     Word {
         value: get_match_value(html),
-        group: selector_as_text(html, "div.definitionBoxTop span.tekstmedium"),
+        group: element_to_string(html, "div.definitionBoxTop span.tekstmedium"),
         is_substantiv: true,
-        bending: selector_as_text(html, "#id-boj span.tekstmedium"),
-        pronunciation: selector_as_text(html, "#id-udt span.tekstmedium"),
-        origin: selector_as_text(html, "#id-ety span.tekstmedium"),
+        bending: element_to_string(html, "#id-boj span.tekstmedium"),
+        pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
+        origin: element_to_string(html, "#id-ety span.tekstmedium"),
         url: String::from(url),
     }
 }
 
 fn get_match_value(html: &Html) -> String {
-    let text = selector_as_text(html, "div.artikel span.match");
+    let text = element_to_string(html, "div.artikel span.match");
     text.chars().filter(|c| c.is_alphabetic()).collect()
 }
 
@@ -122,14 +122,10 @@ fn create_selector(selector: &'_ str) -> Selector {
     Selector::parse(selector).unwrap()
 }
 
-fn el_as_text(element: &ElementRef) -> String {
-    element.text().collect::<String>().trim().to_string()
-}
-
-fn selector_as_text(html: &Html, selector: &'_ str) -> String {
+fn element_to_string(html: &Html, selector: &'_ str) -> String {
     let el_selector = create_selector(selector);
     let element = html.select(&el_selector).next().unwrap();
-    el_as_text(&element)
+    element.text().collect::<String>().trim().to_string()
 }
 
 #[cfg(test)]
