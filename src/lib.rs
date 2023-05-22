@@ -56,7 +56,7 @@ impl Word {
     }
 
     pub fn to_custom(&self, template: &str) -> String {
-        let tera = match Tera::new("template/**/*") {
+        let tera = match Tera::new("templates/**/*") {
             Ok(t) => t,
             Err(e) => {
                 println!("Parsing error(s): {}", e);
