@@ -1,10 +1,12 @@
 use scraper::{ElementRef, Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
+use tera::{Context, Tera};
 
 pub enum Format {
     Json,
     JsonPretty,
+    Custom,
 }
 
 pub struct Config {
@@ -23,10 +25,10 @@ impl Config {
             match args[2].clone().as_str() {
                 "json" => Format::Json,
                 "json-pretty" => Format::JsonPretty,
-                _ => Format::Json,
+                _ => Format::Custom,
             }
         } else {
-            Format::Json
+            Format::Custom
         };
 
         Ok(Config { query, format })
@@ -52,6 +54,21 @@ impl Word {
     pub fn to_json_pretty(&self) -> String {
         serde_json::to_string_pretty(&self).unwrap()
     }
+
+    pub fn to_custom(&self, template: &str) -> String {
+        let tera = match Tera::new("template/**/*") {
+            Ok(t) => t,
+            Err(e) => {
+                println!("Parsing error(s): {}", e);
+                ::std::process::exit(1);
+            }
+        };
+
+        let mut context = Context::new();
+        context.insert("word", self);
+
+        tera.render(template, &context).unwrap()
+    }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
@@ -63,6 +80,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         match config.format {
             Format::Json => word.to_json(),
             Format::JsonPretty => word.to_json_pretty(),
+            Format::Custom => word.to_custom("ankiweb.html"),
         }
     );
 
