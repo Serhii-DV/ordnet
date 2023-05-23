@@ -53,6 +53,7 @@ pub enum SubstantivGroup {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Word {
     pub value_text: String,
+    pub value: String,
     pub group_text: String,
     pub group: WordGroup,
     pub bending: String,
@@ -117,11 +118,15 @@ pub fn build_word(html: &Html, url: String) -> Word {
     // let article_div = html.select(&article_selector).next().unwrap();
     // println!("{}", article_div.html());
     let group_text = element_to_string(html, "div.definitionBoxTop span.tekstmedium");
+    let value_text = get_match_value(html);
+    let group = detect_word_group(&group_text);
+    let value = generate_word_value(&value_text, &group);
 
     Word {
-        value_text: get_match_value(html),
-        group: detect_word_group(&group_text),
+        value,
+        value_text,
         group_text,
+        group,
         bending: element_to_string(html, "#id-boj span.tekstmedium"),
         pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
         origin: element_to_string(html, "#id-ety span.tekstmedium"),
@@ -153,6 +158,16 @@ fn detect_word_group(group_text: &str) -> WordGroup {
     }
 
     WordGroup::None
+}
+
+fn generate_word_value(raw_value: &str, word_group: &WordGroup) -> String {
+    let prefix = match *word_group {
+        WordGroup::Substantiv(SubstantivGroup::Fælleskon) => "en ",
+        WordGroup::Substantiv(SubstantivGroup::Intetkøn) => "et ",
+        _ => "",
+    };
+
+    prefix.to_owned() + raw_value
 }
 
 fn create_selector(selector: &'_ str) -> Selector {
@@ -195,6 +210,7 @@ mod tests {
         let parsed_word = build_word(&html, String::from(url));
         let word = Word {
             value_text: String::from("hygge"),
+            value: String::from("en hygge"),
             group_text: String::from("substantiv, fælleskøn"),
             group: WordGroup::Substantiv(SubstantivGroup::Fælleskon),
             bending: String::from("-n"),
@@ -204,6 +220,7 @@ mod tests {
         };
 
         assert_eq!(word.value_text, parsed_word.value_text);
+        assert_eq!(word.value, parsed_word.value);
         assert_eq!(word.group_text, parsed_word.group_text);
         assert_eq!(word.group, parsed_word.group);
         assert_eq!(word.bending, parsed_word.bending);
