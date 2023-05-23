@@ -120,7 +120,7 @@ pub fn build_word(html: &Html, url: String) -> Word {
 
     Word {
         value_text: get_match_value(html),
-        group: detect_group(&group_text),
+        group: detect_word_group(&group_text),
         group_text,
         bending: element_to_string(html, "#id-boj span.tekstmedium"),
         pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
@@ -134,7 +134,7 @@ fn get_match_value(html: &Html) -> String {
     text.chars().filter(|c| c.is_alphabetic()).collect()
 }
 
-fn detect_group(group_text: &str) -> WordGroup {
+fn detect_word_group(group_text: &str) -> WordGroup {
     let groups = group_text.split(',');
 
     for part in groups {
@@ -174,17 +174,17 @@ mod tests {
     #[test]
     fn can_detect_group() {
         assert_eq!(
-            detect_group("substantiv, fælleskøn"),
+            detect_word_group("substantiv, fælleskøn"),
             WordGroup::Substantiv(SubstantivGroup::Fælleskon)
         );
         assert_eq!(
-            detect_group("substantiv, intetkøn"),
+            detect_word_group("substantiv, intetkøn"),
             WordGroup::Substantiv(SubstantivGroup::Intetkøn)
         );
-        assert_eq!(detect_group("verbum"), WordGroup::Verbum);
-        assert_eq!(detect_group("adjektiv"), WordGroup::Adjektiv);
-        assert_eq!(detect_group("adverbium"), WordGroup::Adverbium);
-        assert_eq!(detect_group("unknown"), WordGroup::None);
+        assert_eq!(detect_word_group("verbum"), WordGroup::Verbum);
+        assert_eq!(detect_word_group("adjektiv"), WordGroup::Adjektiv);
+        assert_eq!(detect_word_group("adverbium"), WordGroup::Adverbium);
+        assert_eq!(detect_word_group("unknown"), WordGroup::None);
     }
 
     #[test]
