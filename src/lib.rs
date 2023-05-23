@@ -2,7 +2,7 @@ mod word;
 
 use scraper::{Html, Selector};
 use std::error::Error;
-use word::{detect_word_group, generate_word_value, Word};
+use word::{Source, Word};
 
 pub enum Format {
     Json,
@@ -66,21 +66,17 @@ pub fn build_word(html: &Html, url: String) -> Word {
     // let article_selector = selector("div.artikel");
     // let article_div = html.select(&article_selector).next().unwrap();
     // println!("{}", article_div.html());
-    let group_text = element_to_string(html, "div.definitionBoxTop span.tekstmedium");
-    let value_text = get_match_value(html);
-    let group = detect_word_group(&group_text);
-    let value = generate_word_value(&value_text, &group);
 
-    Word {
-        value,
-        value_text,
-        group_text,
-        group,
+    let ordnet_word = Source {
+        value: get_match_value(html),
+        group: element_to_string(html, "div.definitionBoxTop span.tekstmedium"),
         bending: element_to_string(html, "#id-boj span.tekstmedium"),
         pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
         origin: element_to_string(html, "#id-ety span.tekstmedium"),
         url,
-    }
+    };
+
+    Word::from_source(ordnet_word)
 }
 
 fn get_match_value(html: &Html) -> String {
@@ -110,24 +106,27 @@ mod tests {
         let html = Html::parse_document(&test_html);
         let url = "https://ordnet.dk";
         let parsed_word = build_word(&html, String::from(url));
-        let word = Word {
-            value_text: String::from("hygge"),
-            value: String::from("en hygge"),
-            group_text: String::from("substantiv, fælleskøn"),
-            group: WordGroup::Substantiv(SubstantivGroup::Fælleskon),
+        let source = Source {
+            value: String::from("hygge"),
+            group: String::from("substantiv, fælleskøn"),
             bending: String::from("-n"),
             pronunciation: String::from("[ˈhygə]"),
             origin: String::from("dannet af hygge"),
             url: String::from(url),
         };
+        let word = Word {
+            source,
+            value: String::from("en hygge"),
+            group: WordGroup::Substantiv(SubstantivGroup::Fælleskon),
+        };
 
-        assert_eq!(word.value_text, parsed_word.value_text);
+        assert_eq!(word.source.value, parsed_word.source.value);
+        assert_eq!(word.source.group, parsed_word.source.group);
+        assert_eq!(word.source.bending, parsed_word.source.bending);
+        assert_eq!(word.source.pronunciation, parsed_word.source.pronunciation);
+        assert_eq!(word.source.origin, parsed_word.source.origin);
+        assert_eq!(word.source.url, parsed_word.source.url);
         assert_eq!(word.value, parsed_word.value);
-        assert_eq!(word.group_text, parsed_word.group_text);
         assert_eq!(word.group, parsed_word.group);
-        assert_eq!(word.bending, parsed_word.bending);
-        assert_eq!(word.pronunciation, parsed_word.pronunciation);
-        assert_eq!(word.origin, parsed_word.origin);
-        assert_eq!(word.url, parsed_word.url);
     }
 }

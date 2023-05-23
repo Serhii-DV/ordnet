@@ -16,19 +16,45 @@ pub enum SubstantivGroup {
     Intetkøn,  // t-word
 }
 
+impl WordGroup {
+    pub fn get_prefix(&self) -> &str {
+        match *self {
+            WordGroup::Substantiv(SubstantivGroup::Fælleskon) => "en",
+            WordGroup::Substantiv(SubstantivGroup::Intetkøn) => "et",
+            _ => "",
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Word {
-    pub value_text: String,
+pub struct Source {
     pub value: String,
-    pub group_text: String,
-    pub group: WordGroup,
+    pub group: String,
     pub bending: String,
     pub pronunciation: String,
     pub origin: String,
     pub url: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Word {
+    pub source: Source,
+    pub value: String,
+    pub group: WordGroup,
+}
+
 impl Word {
+    pub fn from_source(source: Source) -> Self {
+        let group = detect_word_group(&source.group);
+        let value = get_prefixed_value(&source.value, &group);
+
+        Self {
+            source,
+            value,
+            group,
+        }
+    }
+
     pub fn to_json(&self) -> String {
         serde_json::to_string(&self).unwrap()
     }
@@ -47,13 +73,13 @@ impl Word {
         };
 
         let mut context = Context::new();
-        context.insert("word", self);
+        context.insert("word", &self);
 
         tera.render(template, &context).unwrap()
     }
 }
 
-pub fn detect_word_group(group_text: &str) -> WordGroup {
+fn detect_word_group(group_text: &str) -> WordGroup {
     let groups = group_text.split(',');
 
     for part in groups {
@@ -74,14 +100,15 @@ pub fn detect_word_group(group_text: &str) -> WordGroup {
     WordGroup::None
 }
 
-pub fn generate_word_value(raw_value: &str, word_group: &WordGroup) -> String {
-    let prefix = match *word_group {
-        WordGroup::Substantiv(SubstantivGroup::Fælleskon) => "en ",
-        WordGroup::Substantiv(SubstantivGroup::Intetkøn) => "et ",
-        _ => "",
+fn get_prefixed_value(value: &str, group: &WordGroup) -> String {
+    let prefix = group.get_prefix();
+    let prefix = if prefix.is_empty() {
+        prefix.to_owned()
+    } else {
+        prefix.to_owned() + " "
     };
 
-    prefix.to_owned() + raw_value
+    prefix + value
 }
 
 #[cfg(test)]
