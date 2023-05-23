@@ -113,7 +113,7 @@ fn get_prefixed_value(value: &str, group: &WordGroup) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::word::{detect_word_group, SubstantivGroup, WordGroup};
+    use crate::word::{detect_word_group, get_prefixed_value, SubstantivGroup, WordGroup};
 
     #[test]
     fn can_detect_group() {
@@ -129,5 +129,17 @@ mod tests {
         assert_eq!(detect_word_group("adjektiv"), WordGroup::Adjektiv);
         assert_eq!(detect_word_group("adverbium"), WordGroup::Adverbium);
         assert_eq!(detect_word_group("unknown"), WordGroup::None);
+    }
+
+    #[test]
+    fn can_get_prefixed_value() {
+        assert_eq!(
+            get_prefixed_value("word", &WordGroup::Substantiv(SubstantivGroup::Fælleskon)),
+            "en word"
+        );
+        assert_eq!(
+            get_prefixed_value("word", &WordGroup::Substantiv(SubstantivGroup::Intetkøn)),
+            "et word"
+        );
     }
 }
