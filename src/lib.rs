@@ -1,8 +1,11 @@
+mod webpage;
 mod word;
 
 use scraper::{Html, Selector};
 use std::error::Error;
 use word::{Source, Word};
+
+use crate::webpage::get_document;
 
 pub enum Format {
     Json,
@@ -54,10 +57,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
 pub fn get_ordnet_page(query: &str) -> (Html, String) {
     let url = "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query);
-    let response = reqwest::blocking::get(&url).expect("Could not load url.");
-    assert!(response.status().is_success());
-
-    let document = response.text().unwrap();
+    let document = get_document(&url);
 
     (Html::parse_document(&document), url)
 }
