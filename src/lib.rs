@@ -1,7 +1,8 @@
+mod word;
+
 use scraper::{Html, Selector};
-use serde::{Deserialize, Serialize};
 use std::error::Error;
-use tera::{Context, Tera};
+use word::{detect_word_group, generate_word_value, Word};
 
 pub enum Format {
     Json,
@@ -32,58 +33,6 @@ impl Config {
         };
 
         Ok(Config { query, format })
-    }
-}
-
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
-pub enum WordGroup {
-    None,
-    Substantiv(SubstantivGroup),
-    Verbum,
-    Adjektiv,
-    Adverbium,
-}
-
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
-pub enum SubstantivGroup {
-    Fælleskon, // n-word
-    Intetkøn,  // t-word
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Word {
-    pub value_text: String,
-    pub value: String,
-    pub group_text: String,
-    pub group: WordGroup,
-    pub bending: String,
-    pub pronunciation: String,
-    pub origin: String,
-    pub url: String,
-}
-
-impl Word {
-    pub fn to_json(&self) -> String {
-        serde_json::to_string(&self).unwrap()
-    }
-
-    pub fn to_json_pretty(&self) -> String {
-        serde_json::to_string_pretty(&self).unwrap()
-    }
-
-    pub fn to_custom(&self, template: &str) -> String {
-        let tera = match Tera::new("templates/**/*") {
-            Ok(t) => t,
-            Err(e) => {
-                println!("Parsing error(s): {}", e);
-                ::std::process::exit(1);
-            }
-        };
-
-        let mut context = Context::new();
-        context.insert("word", self);
-
-        tera.render(template, &context).unwrap()
     }
 }
 
@@ -139,37 +88,6 @@ fn get_match_value(html: &Html) -> String {
     text.chars().filter(|c| c.is_alphabetic()).collect()
 }
 
-fn detect_word_group(group_text: &str) -> WordGroup {
-    let groups = group_text.split(',');
-
-    for part in groups {
-        let word_group = match part.trim() {
-            "fælleskøn" => WordGroup::Substantiv(SubstantivGroup::Fælleskon),
-            "intetkøn" => WordGroup::Substantiv(SubstantivGroup::Intetkøn),
-            "verbum" => WordGroup::Verbum,
-            "adjektiv" => WordGroup::Adjektiv,
-            "adverbium" => WordGroup::Adverbium,
-            _ => WordGroup::None,
-        };
-
-        if word_group != WordGroup::None {
-            return word_group;
-        }
-    }
-
-    WordGroup::None
-}
-
-fn generate_word_value(raw_value: &str, word_group: &WordGroup) -> String {
-    let prefix = match *word_group {
-        WordGroup::Substantiv(SubstantivGroup::Fælleskon) => "en ",
-        WordGroup::Substantiv(SubstantivGroup::Intetkøn) => "et ",
-        _ => "",
-    };
-
-    prefix.to_owned() + raw_value
-}
-
 fn create_selector(selector: &'_ str) -> Selector {
     Selector::parse(selector).unwrap()
 }
@@ -182,25 +100,9 @@ fn element_to_string(html: &Html, selector: &'_ str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-
     use super::*;
-
-    #[test]
-    fn can_detect_group() {
-        assert_eq!(
-            detect_word_group("substantiv, fælleskøn"),
-            WordGroup::Substantiv(SubstantivGroup::Fælleskon)
-        );
-        assert_eq!(
-            detect_word_group("substantiv, intetkøn"),
-            WordGroup::Substantiv(SubstantivGroup::Intetkøn)
-        );
-        assert_eq!(detect_word_group("verbum"), WordGroup::Verbum);
-        assert_eq!(detect_word_group("adjektiv"), WordGroup::Adjektiv);
-        assert_eq!(detect_word_group("adverbium"), WordGroup::Adverbium);
-        assert_eq!(detect_word_group("unknown"), WordGroup::None);
-    }
+    use crate::word::{SubstantivGroup, WordGroup};
+    use std::fs;
 
     #[test]
     fn can_get_word() {
