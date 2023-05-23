@@ -76,7 +76,7 @@ pub fn build_word(html: &Html, url: String) -> Word {
         url,
     };
 
-    Word::from_source(ordnet_word)
+    Word::build(ordnet_word)
 }
 
 fn get_match_value(html: &Html) -> String {

@@ -44,7 +44,7 @@ pub struct Word {
 }
 
 impl Word {
-    pub fn from_source(source: Source) -> Self {
+    pub fn build(source: Source) -> Self {
         let group = detect_word_group(&source.group);
         let value = get_prefixed_value(&source.value, &group);
 
