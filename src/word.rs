@@ -21,6 +21,7 @@ impl WordGroup {
         match *self {
             WordGroup::Substantiv(SubstantivGroup::Fælleskon) => "en",
             WordGroup::Substantiv(SubstantivGroup::Intetkøn) => "et",
+            WordGroup::Verbum => "at",
             _ => "",
         }
     }
