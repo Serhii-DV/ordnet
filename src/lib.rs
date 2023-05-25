@@ -90,8 +90,13 @@ fn create_selector(selector: &'_ str) -> Selector {
 
 fn element_to_string(html: &Html, selector: &'_ str) -> String {
     let el_selector = create_selector(selector);
-    let element = html.select(&el_selector).next().unwrap();
-    element.text().collect::<String>().trim().to_string()
+    let element = html.select(&el_selector).next();
+
+    if let Some(el) = element {
+        el.text().collect::<String>().trim().to_string()
+    } else {
+        String::from("")
+    }
 }
 
 #[cfg(test)]
