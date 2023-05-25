@@ -123,6 +123,7 @@ mod tests {
             source,
             value: String::from("en hygge"),
             group: WordGroup::Substantiv(SubstantivGroup::Fælleskon),
+            translate_link: String::from(""),
         };
 
         assert_eq!(word.source.value, parsed_word.source.value);

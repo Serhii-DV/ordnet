@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use tera::{Context, Tera};
+use urlencoding::Encoded;
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub enum WordGroup {
@@ -42,17 +43,20 @@ pub struct Word {
     pub source: Source,
     pub value: String,
     pub group: WordGroup,
+    pub translate_link: String,
 }
 
 impl Word {
     pub fn build(source: Source) -> Self {
         let group = detect_word_group(&source.group);
         let value = get_prefixed_value(&source.value, &group);
+        let translate_link = get_translate_link(&value);
 
         Self {
             source,
             value,
             group,
+            translate_link,
         }
     }
 
@@ -75,6 +79,8 @@ impl Word {
 
         let mut context = Context::new();
         context.insert("word", &self);
+
+        println!("{}", &self.translate_link);
 
         tera.render(template, &context).unwrap()
     }
@@ -110,6 +116,12 @@ fn get_prefixed_value(value: &str, group: &WordGroup) -> String {
     };
 
     prefix + value
+}
+
+fn get_translate_link(word: &str) -> String {
+    let url = "https://translate.google.com/?sl=da&tl=en&text={WORD}&op=translate"
+        .replace("{WORD}", &Encoded(word).to_str());
+    url
 }
 
 #[cfg(test)]
