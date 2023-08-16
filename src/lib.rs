@@ -48,7 +48,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         match config.format {
             Format::Json => word.to_json(),
             Format::JsonPretty => word.to_json_pretty(),
-            Format::Custom => word.to_custom("ankiweb.html"),
+            Format::Custom => word.to_custom("anki_obsidian.txt"),
         }
     );
 

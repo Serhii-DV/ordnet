@@ -1,0 +1,14 @@
+```
+START
+Basic (and reversed card)
+{{ word.value }}{% if word.source.group %} ({{ word.source.group }}){% endif %}
+{% if word.source.bending %}{{ word.source.bending }}
+{% endif %}{{ word.source.pronunciation }}
+Back: [translation]
+Tags: {% if word.source.group %}{{ word.source.group }}{% endif %}
+END
+```
+
+
+DK -> EN: https://translate.google.com/?sl=da&tl=en&text={{ word.value_encoded }}&op=translate
+DK -> RU: https://translate.google.com/?sl=da&tl=ru&text={{ word.value_encoded }}&op=translate
