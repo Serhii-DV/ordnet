@@ -10,7 +10,7 @@ use crate::webpage::get_document;
 pub enum Format {
     Json,
     JsonPretty,
-    Custom,
+    Custom(String),
 }
 
 pub struct Config {
@@ -26,13 +26,13 @@ impl Config {
 
         let query = args[1].clone();
         let format = if args.get(2).is_some() {
-            match args[2].clone().as_str() {
+            match args[2].as_str() {
                 "json" => Format::Json,
                 "json-pretty" => Format::JsonPretty,
-                _ => Format::Custom,
+                custom_value => Format::Custom(custom_value.to_string()),
             }
         } else {
-            Format::Custom
+            Format::Custom(String::from("default"))
         };
 
         Ok(Config { query, format })
@@ -48,7 +48,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         match config.format {
             Format::Json => word.to_json(),
             Format::JsonPretty => word.to_json_pretty(),
-            Format::Custom => word.to_custom("anki_obsidian.txt"),
+            Format::Custom(value) => word.to_custom(value.as_str()),
         }
     );
 

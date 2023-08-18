@@ -80,7 +80,8 @@ impl Word {
         let mut context = Context::new();
         context.insert("word", &self);
 
-        tera.render(template, &context).unwrap()
+        let template_file = template.to_owned() + ".txt";
+        tera.render(template_file.as_str(), &context).unwrap()
     }
 }
 
