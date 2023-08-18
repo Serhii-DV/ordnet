@@ -1,13 +1,10 @@
 use scraper::Html;
 
-use crate::webpage::{element_to_string, get_document};
+use crate::webpage::element_to_string;
 use crate::word::{Source, Word};
 
-pub fn get_ordnet_page(query: &str) -> (Html, String) {
-    let url = "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query);
-    let document = get_document(&url);
-
-    (Html::parse_document(&document), url)
+pub fn get_query_url(query: &str) -> String {
+    "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query)
 }
 
 pub fn build_word(html: &Html, url: String) -> Word {

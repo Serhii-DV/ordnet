@@ -2,7 +2,12 @@ mod ordnet;
 mod webpage;
 mod word;
 
-use crate::ordnet::{build_word, get_ordnet_page};
+use scraper::Html;
+
+use crate::{
+    ordnet::{build_word, get_query_url},
+    webpage::get_document,
+};
 use std::error::Error;
 
 pub enum Format {
@@ -38,7 +43,9 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let (html, url) = get_ordnet_page(&config.query);
+    let url = get_query_url(&config.query);
+    let document = get_document(&url);
+    let html = Html::parse_document(&document);
     let word = build_word(&html, url);
 
     println!(
