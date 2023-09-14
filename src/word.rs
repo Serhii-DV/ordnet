@@ -29,7 +29,7 @@ impl WordGroup {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Source {
+pub struct WordSource {
     pub value: String,
     pub group: String,
     pub bending: String,
@@ -40,14 +40,14 @@ pub struct Source {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Word {
-    pub source: Source,
+    pub source: WordSource,
     pub value: String,
     pub group: WordGroup,
     pub value_encoded: String,
 }
 
 impl Word {
-    pub fn build(source: Source) -> Self {
+    pub fn build(source: WordSource) -> Self {
         let group = detect_word_group(&source.group);
         let value = get_prefixed_value(&source.value, &group);
         let value_encoded = get_url_encoded(&value);

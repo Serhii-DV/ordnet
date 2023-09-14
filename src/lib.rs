@@ -87,7 +87,7 @@ mod tests {
     use scraper::Html;
 
     use super::*;
-    use crate::word::{Source, SubstantivGroup, Word, WordGroup};
+    use crate::word::{SubstantivGroup, Word, WordGroup, WordSource};
     use std::fs;
 
     #[test]
@@ -97,7 +97,7 @@ mod tests {
         let url = "https://ordnet.dk";
         let word_source_ordnet = ordnet::build_source(&html, url);
         let parsed_word = Word::build(word_source_ordnet);
-        let source = Source {
+        let source = WordSource {
             value: String::from("hygge"),
             group: String::from("substantiv, fælleskøn"),
             bending: String::from("-n"),

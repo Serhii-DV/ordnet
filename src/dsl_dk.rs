@@ -2,7 +2,7 @@ use scraper::Html;
 
 use crate::{
     webpage::{element_to_string, get_html},
-    word::{Source, Word},
+    word::{Word, WordSource},
 };
 
 pub fn build_word(query: &str) -> Word {
@@ -17,8 +17,8 @@ fn get_query_url(query: &str) -> String {
     "https://ws.dsl.dk/ddo/query?q={QUERY}".replace("{QUERY}", query)
 }
 
-fn build_source(html: &Html, url: &str) -> Source {
-    Source {
+fn build_source(html: &Html, url: &str) -> WordSource {
+    WordSource {
         value: element_to_string(html, ".ar .head .k"),
         group: element_to_string(html, ".ar .pos"),
         bending: element_to_string(html, "#id-boj span.tekstmedium"),
@@ -32,7 +32,7 @@ fn build_source(html: &Html, url: &str) -> Source {
 mod tests {
     use std::fs;
 
-    use crate::word::Source;
+    use crate::word::WordSource;
     use scraper::Html;
 
     use super::build_source;
@@ -44,7 +44,7 @@ mod tests {
         let url = "https://ws.dsl.dk/ddo";
         let word_source = build_source(&html, url);
 
-        let assert_source = Source {
+        let assert_source = WordSource {
             value: String::from("desuden"),
             group: String::from("adverbium"),
             bending: String::from(""),

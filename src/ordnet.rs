@@ -1,7 +1,7 @@
 use scraper::Html;
 
 use crate::webpage::{element_to_string, get_html};
-use crate::word::{Source, Word};
+use crate::word::{Word, WordSource};
 
 pub fn get_query_url(query: &str) -> String {
     "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query)
@@ -15,8 +15,8 @@ pub fn build_word(query: &str) -> Word {
     Word::build(word_source)
 }
 
-pub fn build_source(html: &Html, url: &str) -> Source {
-    Source {
+pub fn build_source(html: &Html, url: &str) -> WordSource {
+    WordSource {
         value: get_match_value(html),
         group: element_to_string(html, "div.definitionBoxTop span.tekstmedium"),
         bending: element_to_string(html, "#id-boj span.tekstmedium"),
@@ -35,7 +35,7 @@ fn get_match_value(html: &Html) -> String {
 mod tests {
     use std::fs;
 
-    use crate::word::Source;
+    use crate::word::WordSource;
     use scraper::Html;
 
     use super::build_source;
@@ -47,7 +47,7 @@ mod tests {
         let url = "https://ordnet.dk";
         let word_source = build_source(&html, url);
 
-        let assert_source = Source {
+        let assert_source = WordSource {
             value: String::from("hygge"),
             group: String::from("substantiv, fælleskøn"),
             bending: String::from("-n"),
