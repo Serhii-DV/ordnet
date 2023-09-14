@@ -1,33 +1,34 @@
 use scraper::Html;
 
-use crate::webpage::{element_to_string, get_document};
+use crate::webpage::{element_by_selector_to_string, get_document};
 use crate::word::{Word, WordSource};
 
 pub fn get_query_url(query: &str) -> String {
     "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query)
 }
 
-pub fn build_word(query: &str) -> Word {
+pub fn build_words(query: &str) -> Vec<Word> {
     let url = get_query_url(query);
     let html = get_document(&url);
     let word_source = build_source(&html, &url);
+    let words: Vec<Word> = vec![Word::build(word_source)];
 
-    Word::build(word_source)
+    words
 }
 
 pub fn build_source(document: &Html, url: &str) -> WordSource {
     WordSource {
         value: get_match_value(document),
-        group: element_to_string(document, "div.definitionBoxTop span.tekstmedium"),
-        bending: element_to_string(document, "#id-boj span.tekstmedium"),
-        pronunciation: element_to_string(document, "#id-udt span.tekstmedium"),
-        origin: element_to_string(document, "#id-ety span.tekstmedium"),
+        group: element_by_selector_to_string(document, "div.definitionBoxTop span.tekstmedium"),
+        bending: element_by_selector_to_string(document, "#id-boj span.tekstmedium"),
+        pronunciation: element_by_selector_to_string(document, "#id-udt span.tekstmedium"),
+        origin: element_by_selector_to_string(document, "#id-ety span.tekstmedium"),
         url: String::from(url),
     }
 }
 
 fn get_match_value(document: &Html) -> String {
-    let text = element_to_string(document, "div.artikel span.match");
+    let text = element_by_selector_to_string(document, "div.artikel span.match");
     text.chars().filter(|c| c.is_alphabetic()).collect()
 }
 

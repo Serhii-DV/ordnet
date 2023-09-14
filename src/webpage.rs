@@ -1,4 +1,4 @@
-use scraper::{Html, Selector};
+use scraper::{ElementRef, Html, Selector};
 
 pub fn get_document(url: &str) -> Html {
     let html = get_html(url);
@@ -15,13 +15,28 @@ pub fn create_selector(selector: &'_ str) -> Selector {
     Selector::parse(selector).unwrap()
 }
 
-pub fn element_to_string(document: &Html, selector: &'_ str) -> String {
+pub fn element_by_selector_to_string(document: &Html, selector: &'_ str) -> String {
     let el_selector = create_selector(selector);
     let element = document.select(&el_selector).next();
 
     if let Some(el) = element {
-        el.text().collect::<String>().trim().to_string()
+        element_to_string(el)
     } else {
         String::from("")
     }
+}
+
+pub fn sub_element_by_selector_to_string(element: ElementRef, selector: &'_ str) -> String {
+    let el_selector = create_selector(selector);
+    let sub_element = element.select(&el_selector).next();
+
+    if let Some(el) = sub_element {
+        element_to_string(el)
+    } else {
+        String::from("")
+    }
+}
+
+pub fn element_to_string(element: ElementRef) -> String {
+    element.text().collect::<String>().trim().to_string()
 }

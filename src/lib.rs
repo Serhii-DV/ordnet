@@ -6,6 +6,7 @@ mod word;
 use std::error::Error;
 
 use clap::{Parser, ValueEnum};
+use word::Word;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -65,21 +66,27 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let word = match config.source {
-        Source::Ordnet => ordnet::build_word(&config.query),
-        Source::Dsl => dsl_dk::build_word(&config.query),
+    let words = match config.source {
+        Source::Ordnet => ordnet::build_words(&config.query),
+        Source::Dsl => dsl_dk::build_words(&config.query),
     };
 
+    for word in words {
+        print_word(&word, &config.format);
+    }
+
+    Ok(())
+}
+
+fn print_word(word: &Word, format: &Format) {
     println!(
         "{}",
-        match config.format {
+        match format {
             Format::Json => word.to_json(),
             Format::JsonPretty => word.to_json_pretty(),
             Format::Custom(value) => word.to_custom(value.as_str()),
         }
     );
-
-    Ok(())
 }
 
 #[cfg(test)]
