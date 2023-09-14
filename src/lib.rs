@@ -76,7 +76,7 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn can_get_word() {
+    fn can_build_word() {
         let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
         let html = Html::parse_document(&test_html);
         let url = "https://ordnet.dk";
