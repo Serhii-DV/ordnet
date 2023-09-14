@@ -1,11 +1,9 @@
 use scraper::Html;
 
-use crate::webpage::{element_to_string, get_html};
-use crate::word::{Source, Word};
-
-pub fn get_query_url(query: &str) -> String {
-    "https://ordnet.dk/ddo/ordbog?query={QUERY}".replace("{QUERY}", query)
-}
+use crate::{
+    webpage::{element_to_string, get_html},
+    word::{Source, Word},
+};
 
 pub fn build_word(query: &str) -> Word {
     let url = get_query_url(query);
@@ -15,20 +13,19 @@ pub fn build_word(query: &str) -> Word {
     Word::build(word_source)
 }
 
-pub fn build_source(html: &Html, url: &str) -> Source {
-    Source {
-        value: get_match_value(html),
-        group: element_to_string(html, "div.definitionBoxTop span.tekstmedium"),
-        bending: element_to_string(html, "#id-boj span.tekstmedium"),
-        pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
-        origin: element_to_string(html, "#id-ety span.tekstmedium"),
-        url: String::from(url),
-    }
+fn get_query_url(query: &str) -> String {
+    "https://ws.dsl.dk/ddo/query?q={QUERY}".replace("{QUERY}", query)
 }
 
-fn get_match_value(html: &Html) -> String {
-    let text = element_to_string(html, "div.artikel span.match");
-    text.chars().filter(|c| c.is_alphabetic()).collect()
+fn build_source(html: &Html, url: &str) -> Source {
+    Source {
+        value: element_to_string(html, ".ar .head .k"),
+        group: element_to_string(html, ".ar .pos"),
+        bending: element_to_string(html, "#id-boj span.tekstmedium"),
+        pronunciation: element_to_string(html, ".ar .phon"),
+        origin: element_to_string(html, ".ar .etym"),
+        url: String::from(url),
+    }
 }
 
 #[cfg(test)]
@@ -42,17 +39,17 @@ mod tests {
 
     #[test]
     fn can_build_source() {
-        let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
+        let test_html = fs::read_to_string("test/dsl/1/desuden.html").unwrap();
         let html = Html::parse_document(&test_html);
-        let url = "https://ordnet.dk";
+        let url = "https://ws.dsl.dk/ddo";
         let word_source = build_source(&html, url);
 
         let assert_source = Source {
-            value: String::from("hygge"),
-            group: String::from("substantiv, fælleskøn"),
-            bending: String::from("-n"),
-            pronunciation: String::from("[ˈhygə]"),
-            origin: String::from("dannet af hygge"),
+            value: String::from("desuden"),
+            group: String::from("adverbium"),
+            bending: String::from(""),
+            pronunciation: String::from("[desˈuːðən]"),
+            origin: String::from("første led des genitiv singularis af det i partitiv betydning, egentlig '(for)uden af det'"),
             url: String::from(url),
         };
 

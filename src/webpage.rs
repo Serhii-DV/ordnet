@@ -1,5 +1,10 @@
 use scraper::{Html, Selector};
 
+pub fn get_html(url: &str) -> Html {
+    let document = get_document(url);
+    Html::parse_document(&document)
+}
+
 pub fn get_document(url: &str) -> String {
     let response = reqwest::blocking::get(url).expect("Could not load url.");
     assert!(response.status().is_success());

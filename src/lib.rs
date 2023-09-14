@@ -1,14 +1,8 @@
+mod dsl_dk;
 mod ordnet;
 mod webpage;
 mod word;
 
-use scraper::Html;
-
-use crate::{
-    ordnet::{build_source, get_query_url},
-    webpage::get_document,
-    word::Word,
-};
 use std::error::Error;
 
 pub enum Format {
@@ -44,10 +38,8 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let url = get_query_url(&config.query);
-    let document = get_document(&url);
-    let html = Html::parse_document(&document);
-    let word = build_word(&html, url);
+    let word = ordnet::build_word(&config.query);
+    let _word = dsl_dk::build_word(&config.query);
 
     println!(
         "{}",
@@ -59,12 +51,6 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     );
 
     Ok(())
-}
-
-fn build_word(html: &Html, url: String) -> Word {
-    let word_source = build_source(html, url);
-
-    Word::build(word_source)
 }
 
 #[cfg(test)]
@@ -80,7 +66,8 @@ mod tests {
         let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
         let html = Html::parse_document(&test_html);
         let url = "https://ordnet.dk";
-        let parsed_word = build_word(&html, String::from(url));
+        let word_source_ordnet = ordnet::build_source(&html, url);
+        let parsed_word = Word::build(word_source_ordnet);
         let source = Source {
             value: String::from("hygge"),
             group: String::from("substantiv, fælleskøn"),
