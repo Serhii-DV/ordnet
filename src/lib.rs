@@ -93,9 +93,9 @@ mod tests {
     #[test]
     fn can_build_word() {
         let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
-        let html = Html::parse_document(&test_html);
+        let document = Html::parse_document(&test_html);
         let url = "https://ordnet.dk";
-        let word_source_ordnet = ordnet::build_source(&html, url);
+        let word_source_ordnet = ordnet::build_source(&document, url);
         let parsed_word = Word::build(word_source_ordnet);
         let source = WordSource {
             value: String::from("hygge"),

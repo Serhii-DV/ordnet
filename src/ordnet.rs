@@ -1,6 +1,6 @@
 use scraper::Html;
 
-use crate::webpage::{element_to_string, get_html};
+use crate::webpage::{element_to_string, get_document};
 use crate::word::{Word, WordSource};
 
 pub fn get_query_url(query: &str) -> String {
@@ -9,25 +9,25 @@ pub fn get_query_url(query: &str) -> String {
 
 pub fn build_word(query: &str) -> Word {
     let url = get_query_url(query);
-    let html = get_html(&url);
+    let html = get_document(&url);
     let word_source = build_source(&html, &url);
 
     Word::build(word_source)
 }
 
-pub fn build_source(html: &Html, url: &str) -> WordSource {
+pub fn build_source(document: &Html, url: &str) -> WordSource {
     WordSource {
-        value: get_match_value(html),
-        group: element_to_string(html, "div.definitionBoxTop span.tekstmedium"),
-        bending: element_to_string(html, "#id-boj span.tekstmedium"),
-        pronunciation: element_to_string(html, "#id-udt span.tekstmedium"),
-        origin: element_to_string(html, "#id-ety span.tekstmedium"),
+        value: get_match_value(document),
+        group: element_to_string(document, "div.definitionBoxTop span.tekstmedium"),
+        bending: element_to_string(document, "#id-boj span.tekstmedium"),
+        pronunciation: element_to_string(document, "#id-udt span.tekstmedium"),
+        origin: element_to_string(document, "#id-ety span.tekstmedium"),
         url: String::from(url),
     }
 }
 
-fn get_match_value(html: &Html) -> String {
-    let text = element_to_string(html, "div.artikel span.match");
+fn get_match_value(document: &Html) -> String {
+    let text = element_to_string(document, "div.artikel span.match");
     text.chars().filter(|c| c.is_alphabetic()).collect()
 }
 
@@ -43,9 +43,9 @@ mod tests {
     #[test]
     fn can_build_source() {
         let test_html = fs::read_to_string("test/ordnet_fragment.html").unwrap();
-        let html = Html::parse_document(&test_html);
+        let document = Html::parse_document(&test_html);
         let url = "https://ordnet.dk";
-        let word_source = build_source(&html, url);
+        let word_source = build_source(&document, url);
 
         let assert_source = WordSource {
             value: String::from("hygge"),

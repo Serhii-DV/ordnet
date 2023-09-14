@@ -1,14 +1,14 @@
 use scraper::Html;
 
 use crate::{
-    webpage::{element_to_string, get_html},
+    webpage::{element_to_string, get_document},
     word::{Word, WordSource},
 };
 
 pub fn build_word(query: &str) -> Word {
     let url = get_query_url(query);
-    let html = get_html(&url);
-    let word_source = build_source(&html, &url);
+    let document = get_document(&url);
+    let word_source = build_source(&document, &url);
 
     Word::build(word_source)
 }
@@ -17,13 +17,13 @@ fn get_query_url(query: &str) -> String {
     "https://ws.dsl.dk/ddo/query?q={QUERY}".replace("{QUERY}", query)
 }
 
-fn build_source(html: &Html, url: &str) -> WordSource {
+fn build_source(document: &Html, url: &str) -> WordSource {
     WordSource {
-        value: element_to_string(html, ".ar .head .k"),
-        group: element_to_string(html, ".ar .pos"),
-        bending: element_to_string(html, "#id-boj span.tekstmedium"),
-        pronunciation: element_to_string(html, ".ar .phon"),
-        origin: element_to_string(html, ".ar .etym"),
+        value: element_to_string(document, ".ar .head .k"),
+        group: element_to_string(document, ".ar .pos"),
+        bending: element_to_string(document, "#id-boj span.tekstmedium"),
+        pronunciation: element_to_string(document, ".ar .phon"),
+        origin: element_to_string(document, ".ar .etym"),
         url: String::from(url),
     }
 }
@@ -40,9 +40,9 @@ mod tests {
     #[test]
     fn can_build_source() {
         let test_html = fs::read_to_string("test/dsl/1/desuden.html").unwrap();
-        let html = Html::parse_document(&test_html);
+        let document = Html::parse_document(&test_html);
         let url = "https://ws.dsl.dk/ddo";
-        let word_source = build_source(&html, url);
+        let word_source = build_source(&document, url);
 
         let assert_source = WordSource {
             value: String::from("desuden"),
