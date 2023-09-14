@@ -5,8 +5,9 @@ mod word;
 use scraper::Html;
 
 use crate::{
-    ordnet::{build_word, get_query_url},
+    ordnet::{build_source, get_query_url},
     webpage::get_document,
+    word::Word,
 };
 use std::error::Error;
 
@@ -58,6 +59,12 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     );
 
     Ok(())
+}
+
+fn build_word(html: &Html, url: String) -> Word {
+    let word_source = build_source(html, url);
+
+    Word::build(word_source)
 }
 
 #[cfg(test)]
