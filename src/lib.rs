@@ -5,41 +5,70 @@ mod word;
 
 use std::error::Error;
 
+use clap::{Parser, ValueEnum};
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+pub struct Args {
+    /// Query value
+    query: String,
+
+    /// Format type
+    #[arg(short, long, default_value = "default")]
+    format: Option<String>,
+
+    /// Source type
+    #[arg(short, long, value_enum, default_value_t=Source::Dsl)]
+    source: Source,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum Source {
+    /// Source ordnet.dk
+    Ordnet,
+    /// Source dsl.dk (faster)
+    Dsl,
+}
+
+#[derive(Debug)]
 pub enum Format {
     Json,
     JsonPretty,
     Custom(String),
 }
 
+#[derive(Debug)]
 pub struct Config {
     pub query: String,
     pub format: Format,
+    pub source: Source,
 }
 
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 2 {
-            return Err("not enough arguments");
-        }
-
-        let query = args[1].clone();
-        let format = if args.get(2).is_some() {
-            match args[2].as_str() {
-                "json" => Format::Json,
-                "json-pretty" => Format::JsonPretty,
-                custom_value => Format::Custom(custom_value.to_string()),
-            }
-        } else {
-            Format::Custom(String::from("default"))
+    pub fn build() -> Result<Config, &'static str> {
+        let args = Args::parse();
+        let query = args.query;
+        let format = match args.format {
+            Some(ref s) if s == "json" => Format::Json,
+            Some(ref s) if s == "json-pretty" => Format::JsonPretty,
+            Some(custom_value) => Format::Custom(custom_value.to_string()),
+            None => Format::Custom(String::from("default")),
         };
+        let source = args.source;
 
-        Ok(Config { query, format })
+        Ok(Config {
+            query,
+            format,
+            source,
+        })
     }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let word = ordnet::build_word(&config.query);
-    let _word = dsl_dk::build_word(&config.query);
+    let word = match config.source {
+        Source::Ordnet => ordnet::build_word(&config.query),
+        Source::Dsl => dsl_dk::build_word(&config.query),
+    };
 
     println!(
         "{}",
