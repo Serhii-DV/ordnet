@@ -1,0 +1,5 @@
+{{ word.value | replace(from=" ", to="_") }}({{ word.value }})
+{% for synonym in word.source.synonyms %}{{ synonym | replace(from=" ", to="_") }}({{ synonym }})
+{% endfor %}
+{% for synonym in word.source.synonyms %}{{ word.value | replace(from=" ", to="_") }} --> {{ synonym | replace(from=" ", to="_") }}
+{% endfor %}
