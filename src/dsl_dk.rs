@@ -30,6 +30,7 @@ fn build_source_from_element(element: ElementRef, url: &str) -> WordSource {
         bending: sub_element_by_selector_to_string(element, "#id-boj span.tekstmedium"),
         pronunciation: sub_element_by_selector_to_string(element, ".ar .phon"),
         origin: sub_element_by_selector_to_string(element, ".ar .etym"),
+        synonyms: Vec::new(),
         url: String::from(url),
     }
 }
@@ -69,6 +70,7 @@ mod tests {
                 bending: String::from(""),
                 pronunciation: String::from("[desˈuːðən]"),
                 origin: String::from("første led des genitiv singularis af det i partitiv betydning, egentlig '(for)uden af det'"),
+                synonyms: Vec::new(),
                 url: String::from(url),
             }
         ];
@@ -96,6 +98,7 @@ mod tests {
                 bending: String::from(""),
                 pronunciation: String::from("[ˈvʌgs]"),
                 origin: String::from(""),
+                synonyms: Vec::new(),
                 url: String::from(url),
             },
             WordSource {
@@ -104,6 +107,7 @@ mod tests {
                 bending: String::from(""),
                 pronunciation: String::from("[ˈvʌgsə]"),
                 origin: String::from(""),
+                synonyms: Vec::new(),
                 url: String::from(url),
             },
             WordSource {
@@ -112,6 +116,7 @@ mod tests {
                 bending: String::from(""),
                 pronunciation: String::from("[ˈvʌgsə]"),
                 origin: String::from(""),
+                synonyms: Vec::new(),
                 url: String::from(url),
             },
         ];

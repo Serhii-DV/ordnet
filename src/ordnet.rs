@@ -23,6 +23,7 @@ pub fn build_source(document: &Html, url: &str) -> WordSource {
         bending: element_by_selector_to_string(document, "#id-boj span.tekstmedium"),
         pronunciation: element_by_selector_to_string(document, "#id-udt span.tekstmedium"),
         origin: element_by_selector_to_string(document, "#id-ety span.tekstmedium"),
+        synonyms: Vec::new(),
         url: String::from(url),
     }
 }
@@ -54,6 +55,7 @@ mod tests {
             bending: String::from("-n"),
             pronunciation: String::from("[ˈhygə]"),
             origin: String::from("dannet af hygge"),
+            synonyms: Vec::new(),
             url: String::from(url),
         };
 

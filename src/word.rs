@@ -35,6 +35,7 @@ pub struct WordSource {
     pub bending: String,
     pub pronunciation: String,
     pub origin: String,
+    pub synonyms: Vec<String>,
     pub url: String,
 }
 

@@ -110,6 +110,7 @@ mod tests {
             bending: String::from("-n"),
             pronunciation: String::from("[ˈhygə]"),
             origin: String::from("dannet af hygge"),
+            synonyms: Vec::new(),
             url: String::from(url),
         };
         let word = Word {
