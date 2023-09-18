@@ -40,3 +40,19 @@ pub fn sub_element_by_selector_to_string(element: ElementRef, selector: &'_ str)
 pub fn element_to_string(element: ElementRef) -> String {
     element.text().collect::<String>().trim().to_string()
 }
+
+pub fn extract_elements_as_text_vec(element: ElementRef, selector: &'_ str) -> Vec<String> {
+    // Define the CSS selector
+    let selector = Selector::parse(selector).unwrap();
+
+    // Extract the content of selected elements and store it in a Vec<String>
+    let elements_as_text_vec: Vec<String> = element
+        .select(&selector)
+        .map(|element| {
+            let text = element.text().collect::<String>();
+            text
+        })
+        .collect();
+
+    elements_as_text_vec
+}

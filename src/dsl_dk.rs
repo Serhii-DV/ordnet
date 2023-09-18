@@ -1,7 +1,10 @@
 use scraper::{ElementRef, Html};
 
 use crate::{
-    webpage::{create_selector, get_document, sub_element_by_selector_to_string},
+    webpage::{
+        create_selector, extract_elements_as_text_vec, get_document,
+        sub_element_by_selector_to_string,
+    },
     word::{Word, WordSource},
 };
 
@@ -30,7 +33,7 @@ fn build_source_from_element(element: ElementRef, url: &str) -> WordSource {
         bending: sub_element_by_selector_to_string(element, "#id-boj span.tekstmedium"),
         pronunciation: sub_element_by_selector_to_string(element, ".ar .phon"),
         origin: sub_element_by_selector_to_string(element, ".ar .etym"),
-        synonyms: Vec::new(),
+        synonyms: extract_elements_as_text_vec(element, ".synonyms .k a"),
         url: String::from(url),
     }
 }
@@ -70,7 +73,13 @@ mod tests {
                 bending: String::from(""),
                 pronunciation: String::from("[desˈuːðən]"),
                 origin: String::from("første led des genitiv singularis af det i partitiv betydning, egentlig '(for)uden af det'"),
-                synonyms: Vec::new(),
+                synonyms: vec![
+                    String::from("derudover"),
+                    String::from("desforuden"),
+                    String::from("ovenikøbet"),
+                    String::from("i øvrigt"),
+                    String::from("for resten"),
+                ],
                 url: String::from(url),
             }
         ];
