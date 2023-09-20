@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use scraper::{ElementRef, Html, Selector};
 
 pub fn get_document(url: &str) -> Html {
@@ -44,6 +46,7 @@ pub fn element_to_string(element: ElementRef) -> String {
 pub fn extract_elements_as_text_vec(element: ElementRef, selector: &'_ str) -> Vec<String> {
     // Define the CSS selector
     let selector = Selector::parse(selector).unwrap();
+    let mut unique_elements = HashSet::new();
 
     // Extract the content of selected elements and store it in a Vec<String>
     let elements_as_text_vec: Vec<String> = element
@@ -51,6 +54,10 @@ pub fn extract_elements_as_text_vec(element: ElementRef, selector: &'_ str) -> V
         .map(|element| {
             let text = element.text().collect::<String>();
             text
+        })
+        .filter(|text| {
+            // Check if the text is not already in the HashSet
+            unique_elements.insert(text.clone())
         })
         .collect();
 
