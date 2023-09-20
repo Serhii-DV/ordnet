@@ -5,10 +5,10 @@ Basic (and reversed card)
 ({{ word.source.group }}){% endif %}{% if word.source.bending %}
 {{ word.source.bending }}{% endif %}{% if word.source.pronunciation %}
 {{ word.source.pronunciation }}{% endif %}
-
-Synonyms:
+[Example]
+{% if word.source.synonyms %}Synonyms:
 {% for synonym in word.source.synonyms %}{{ synonym }}
-{% endfor %}
+{% endfor %}{% endif %}
 Back:
 [Translation]
 Tags: {% if word.source.group %}{{ word.source.group }}{% endif %}
