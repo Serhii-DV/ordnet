@@ -6,11 +6,16 @@ Basic (and reversed card)
 {{ word.source.bending }}{% endif %}{% if word.source.pronunciation %}
 {{ word.source.pronunciation }}{% endif %}
 [Example]
+
 {% if word.source.synonyms %}Synonyms:
 {% for synonym in word.source.synonyms %}{{ synonym }}
 {% endfor %}{% endif %}
 Back:
 [Translation]
+
+{% if word.source.synonyms %}Synonyms:
+{% for synonym in word.source.synonyms %}{{ synonym }}
+{% endfor %}{% endif %}
 Tags: {% if word.source.group %}{{ word.source.group }}{% endif %}
 END
 ```
