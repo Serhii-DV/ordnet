@@ -30,7 +30,7 @@ fn build_source_from_element(element: ElementRef, url: &str) -> WordSource {
     WordSource {
         value: sub_element_by_selector_to_string(element, ".ar .head .k"),
         group: sub_element_by_selector_to_string(element, ".ar .pos"),
-        bending: sub_element_by_selector_to_string(element, "#id-boj span.tekstmedium"),
+        bending: sub_element_by_selector_to_string(element, ".ar .m"),
         pronunciation: sub_element_by_selector_to_string(element, ".ar .phon"),
         origin: sub_element_by_selector_to_string(element, ".ar .etym"),
         synonyms: extract_elements_as_text_vec(element, ".synonyms .k a"),
@@ -104,7 +104,7 @@ mod tests {
             WordSource {
                 value: String::from("voks"),
                 group: String::from("substantiv, fælleskøn eller intetkøn"),
-                bending: String::from(""),
+                bending: String::from("-en eller -et, -er, -erne"),
                 pronunciation: String::from("[ˈvʌgs]"),
                 origin: String::from(""),
                 synonyms: Vec::new(),
@@ -113,7 +113,7 @@ mod tests {
             WordSource {
                 value: String::from("vokse1"),
                 group: String::from("verbum"),
-                bending: String::from(""),
+                bending: String::from("-r, -de, -t"),
                 pronunciation: String::from("[ˈvʌgsə]"),
                 origin: String::from(""),
                 synonyms: Vec::new(),
@@ -122,7 +122,7 @@ mod tests {
             WordSource {
                 value: String::from("vokse2"),
                 group: String::from("verbum"),
-                bending: String::from(""),
+                bending: String::from("-r, -de, -t"),
                 pronunciation: String::from("[ˈvʌgsə]"),
                 origin: String::from(""),
                 synonyms: Vec::new(),
